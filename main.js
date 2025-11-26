@@ -1,11 +1,6 @@
-
-
-// Enhanced JavaScript with GSAP and all requested features
-
-// Wait for DOM to be fully loaded
+// Safe JavaScript with GSAP fallback
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize GSAP plugins
-    gsap.registerPlugin(ScrollTrigger, TextPlugin);
+    console.log('DOM loaded - initializing');
     
     // Global error handler
     window.addEventListener('error', function(e) {
@@ -20,184 +15,272 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('touch-device');
     }
     
-    // Loading screen animation with GSAP
-    try {
-        const loadingScreen = document.getElementById('loadingScreen');
-        const loadingTimeline = gsap.timeline();
-        
-        loadingTimeline
-            .to('.loading-logo', {
-                duration: 1.5,
-                opacity: 1,
-                y: 0,
-                ease: 'power3.out'
-            })
-            .to('.loading-logo', {
-                duration: 0.5,
-                opacity: 0,
-                scale: 1.1,
-                ease: 'power2.in'
-            }, "+0.5")
-            .to(loadingScreen, {
-                duration: 0.7,
-                y: "-100%",
-                ease: 'expo.inOut',
-                onComplete: () => {
-                    loadingScreen.style.display = 'none';
-                    // Start main page animations after loading is complete
-                    initMainAnimations();
-                }
+    // Mobile menu functionality
+    function initMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileNav = document.createElement('div');
+        const mobileNavOverlay = document.createElement('div');
+
+        // Create mobile navigation
+        mobileNav.className = 'mobile-nav';
+        mobileNav.setAttribute('aria-label', 'Mobile navigation');
+        mobileNavOverlay.className = 'mobile-nav-overlay';
+
+        // Clone navigation links for mobile
+        const navLinks = document.querySelectorAll('.nav a');
+        navLinks.forEach(link => {
+            const clonedLink = link.cloneNode(true);
+            // Remove any existing active classes
+            clonedLink.classList.remove('active');
+            mobileNav.appendChild(clonedLink);
+        });
+
+        // Add to DOM
+        document.body.appendChild(mobileNav);
+        document.body.appendChild(mobileNavOverlay);
+
+        // Toggle mobile menu
+        mobileMenu.addEventListener('click', function() {
+            const isOpen = this.classList.toggle('open');
+            mobileNav.classList.toggle('active');
+            mobileNavOverlay.classList.toggle('active');
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+            
+            // Update aria-expanded for accessibility
+            this.setAttribute('aria-expanded', isOpen);
+        });
+
+        // Close mobile menu when clicking overlay
+        mobileNavOverlay.addEventListener('click', function() {
+            mobileMenu.classList.remove('open');
+            mobileNav.classList.remove('active');
+            this.classList.remove('active');
+            document.body.style.overflow = '';
+            mobileMenu.setAttribute('aria-expanded', 'false');
+        });
+
+        // Close mobile menu when clicking a link
+        mobileNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+                mobileNav.classList.remove('active');
+                mobileNavOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                mobileMenu.setAttribute('aria-expanded', 'false');
             });
-    } catch (e) {
-        // Fallback if GSAP fails (e.g., script fails to load)
-        const loadingScreen = document.getElementById('loadingScreen');
-        if (loadingScreen) {
-            loadingScreen.style.display = 'none';
-        }
-        initMainAnimations();
+        });
+
+        // Close mobile menu on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && mobileNav.classList.contains('active')) {
+                mobileMenu.classList.remove('open');
+                mobileNav.classList.remove('active');
+                mobileNavOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                mobileMenu.setAttribute('aria-expanded', 'false');
+            }
+        });
     }
+    
+    // Safe loading screen handler
+    function handleLoadingScreen() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        
+        // If GSAP is available, use it for animations
+        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+            try {
+                gsap.registerPlugin(ScrollTrigger);
+                
+                const loadingTimeline = gsap.timeline();
+                loadingTimeline
+                    .to('.loading-logo', {
+                        duration: 1.5,
+                        opacity: 1,
+                        y: 0,
+                        ease: 'power3.out'
+                    })
+                    .to('.loading-logo', {
+                        duration: 0.5,
+                        opacity: 0,
+                        scale: 1.1,
+                        ease: 'power2.in'
+                    }, "+0.5")
+                    .to(loadingScreen, {
+                        duration: 0.7,
+                        y: "-100%",
+                        ease: 'expo.inOut',
+                        onComplete: () => {
+                            if (loadingScreen) {
+                                loadingScreen.style.display = 'none';
+                            }
+                            initMainAnimations();
+                        }
+                    });
+            } catch (e) {
+                console.warn('GSAP animation failed, using fallback:', e);
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                }
+                initMainAnimations();
+            }
+        } else {
+            // GSAP not available - immediate fallback
+            console.warn('GSAP not available, using fallback loading');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+            initMainAnimations();
+        }
+    }
+    
+    // Start loading process
+    handleLoadingScreen();
 
     function initMainAnimations() {
-        // --- 1. Hero Section Animation ---
-        gsap.from(".hero .eyebrow", { opacity: 0, y: 20, duration: 0.8, delay: 0.2 });
-        gsap.from(".hero .headline span", { 
-            opacity: 0, 
-            y: 40, 
-            stagger: 0.15, 
-            duration: 1.2, 
-            ease: "power3.out",
-            delay: 0.3
-        });
-        gsap.from(".hero .subtext", { opacity: 0, y: 20, duration: 1, delay: 0.8 });
-        gsap.from(".hero-cta a", { opacity: 0, y: 20, stagger: 0.2, duration: 0.8, delay: 1 });
+        console.log('Initializing main animations');
+        
+        // Initialize mobile menu
+        initMobileMenu();
+        
+        // Safe GSAP animations with fallbacks
+        if (typeof gsap !== 'undefined') {
+            try {
+                // --- 1. Hero Section Animation ---
+                gsap.from(".hero .eyebrow", { opacity: 0, y: 20, duration: 0.8, delay: 0.2 });
+                gsap.from(".hero .headline span", { 
+                    opacity: 0, 
+                    y: 40, 
+                    stagger: 0.15, 
+                    duration: 1.2, 
+                    ease: "power3.out",
+                    delay: 0.3
+                });
+                gsap.from(".hero .subtext", { opacity: 0, y: 20, duration: 1, delay: 0.8 });
+                gsap.from(".hero-cta a", { opacity: 0, y: 20, stagger: 0.2, duration: 0.8, delay: 1 });
 
-
-        // --- 2. Header Scroll Behavior ---
-        const header = document.getElementById('header');
-        ScrollTrigger.create({
-            trigger: document.body,
-            start: "top -100px", 
-            end: "bottom bottom",
-            onUpdate: (self) => {
-                if (self.direction === 1) { // Scrolling down
-                    gsap.to(header, { y: -header.offsetHeight, duration: 0.3 });
-                } else { // Scrolling up
-                    gsap.to(header, { y: 0, duration: 0.3 });
+                // --- 2. Header Scroll Behavior ---
+                const header = document.getElementById('header');
+                if (header && typeof ScrollTrigger !== 'undefined') {
+                    ScrollTrigger.create({
+                        trigger: document.body,
+                        start: "top -100px", 
+                        end: "bottom bottom",
+                        onUpdate: (self) => {
+                            if (self.direction === 1) { // Scrolling down
+                                gsap.to(header, { y: -header.offsetHeight, duration: 0.3 });
+                            } else { // Scrolling up
+                                gsap.to(header, { y: 0, duration: 0.3 });
+                            }
+                        },
+                        onLeaveBack: () => header.classList.remove('scrolled'),
+                        onEnter: () => header.classList.add('scrolled'),
+                    });
                 }
-            },
-            onLeaveBack: () => header.classList.remove('scrolled'),
-            onEnter: () => header.classList.add('scrolled'),
-        });
 
+                // --- 3. Scroll Progress Bar ---
+                if (typeof ScrollTrigger !== 'undefined') {
+                    gsap.to("#scrollProgress", {
+                        width: "100%",
+                        ease: "none",
+                        scrollTrigger: {
+                            trigger: "body",
+                            start: "top top",
+                            end: "bottom bottom",
+                            scrub: true,
+                        }
+                    });
+                }
 
-        // --- 3. Scroll Progress Bar ---
-        gsap.to("#scrollProgress", {
-            width: "100%",
-            ease: "none",
-            scrollTrigger: {
-                trigger: "body",
-                start: "top top",
-                end: "bottom bottom",
-                scrub: true,
+                // --- 4. Custom Cursor Logic (Only for non-touch devices) ---
+                if (!isTouchDevice) {
+                    const cursorDot = document.getElementById('cursorDot');
+                    const cursorRing = document.getElementById('cursorRing');
+                    
+                    if (cursorDot && cursorRing) {
+                        gsap.set([cursorDot, cursorRing], { opacity: 1 });
+
+                        document.addEventListener('mousemove', (e) => {
+                            gsap.to(cursorDot, { duration: 0.2, x: e.clientX, y: e.clientY });
+                            gsap.to(cursorRing, { duration: 0.7, x: e.clientX, y: e.clientY });
+                        });
+
+                        // Handle hover states
+                        document.querySelectorAll('a, button, .service-card, .why-us-card, .pricing-card').forEach(el => {
+                            el.addEventListener('mouseenter', () => cursorRing.classList.add('grow'));
+                            el.addEventListener('mouseleave', () => cursorRing.classList.remove('grow'));
+                        });
+                    }
+                }
+
+                // --- 6. ScrollTrigger Section Reveal (General) ---
+                if (typeof ScrollTrigger !== 'undefined') {
+                    gsap.utils.toArray(".content-section").forEach(section => {
+                        gsap.from(section.querySelectorAll(".section-header, .services-grid > *, .why-us-grid > *, .pricing-grid > *, .testimonials-grid > *, .contact-container"), {
+                            opacity: 0,
+                            y: 50,
+                            stagger: 0.1,
+                            duration: 1.0,
+                            ease: "power3.out",
+                            scrollTrigger: {
+                                trigger: section,
+                                start: "top 85%",
+                                toggleActions: "play none none none"
+                            }
+                        });
+                    });
+                }
+
+            } catch (e) {
+                console.warn('GSAP animations failed:', e);
+                initFallbackAnimations();
             }
-        });
-
-
-        // --- 4. Custom Cursor Logic (Only for non-touch devices) ---
-        if (!isTouchDevice) {
-            const cursorDot = document.getElementById('cursorDot');
-            const cursorRing = document.getElementById('cursorRing');
-            let isMoving = false;
-            
-            gsap.set([cursorDot, cursorRing], { opacity: 1 });
-
-            document.addEventListener('mousemove', (e) => {
-                isMoving = true;
-                gsap.to(cursorDot, { duration: 0.2, x: e.clientX, y: e.clientY });
-                gsap.to(cursorRing, { duration: 0.7, x: e.clientX, y: e.clientY });
-            });
-
-            // Handle hover states
-            document.querySelectorAll('a, button, .service-card, .why-us-card, .pricing-card').forEach(el => {
-                el.addEventListener('mouseenter', () => cursorRing.classList.add('grow'));
-                el.addEventListener('mouseleave', () => cursorRing.classList.remove('grow'));
-            });
+        } else {
+            // GSAP not available at all
+            initFallbackAnimations();
         }
 
-
-        // --- 5. Mobile Menu Toggle ---
-        const mobileMenu = document.getElementById('mobileMenu');
-        mobileMenu.addEventListener('click', function() {
-            this.classList.toggle('open');
-            // This is a placeholder. A full mobile menu modal/drawer implementation would go here.
-            // For now, this just toggles the hamburger animation.
-            // When building the full site, you'll need to create a mobile-nav element
-            // and toggle its visibility here.
-            // Example: document.getElementById('mobileNavDrawer').classList.toggle('visible');
-        });
-
-        // --- 6. ScrollTrigger Section Reveal (General) ---
-        gsap.utils.toArray(".content-section").forEach(section => {
-            gsap.from(section.querySelectorAll(".section-header, .services-grid > *, .why-us-grid > *, .pricing-grid > *, .testimonials-grid > *, .contact-container"), {
-                opacity: 0,
-                y: 50,
-                stagger: 0.1,
-                duration: 1.0,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: section,
-                    start: "top 85%", // Start animation when section is 85% in view
-                    toggleActions: "play none none none"
-                }
-            });
-        });
-
-        // --- 7. Form Validation (Kept simple) ---
+        // --- 7. Form Validation ---
         const contactForm = document.getElementById('contactForm');
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            let isValid = true;
-            
-            // Basic required field check (extend this for email/format validation)
-            ['name', 'email', 'message', 'businessType', 'serviceInterest'].forEach(id => {
-                const input = document.getElementById(id);
-                const error = document.getElementById(id + 'Error');
-                if (input.required && input.value.trim() === '') {
-                    error.textContent = 'This field is required.';
-                    isValid = false;
-                } else {
-                    error.textContent = '';
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let isValid = true;
+                
+                ['name', 'email', 'message', 'businessType', 'serviceInterest'].forEach(id => {
+                    const input = document.getElementById(id);
+                    const error = document.getElementById(id + 'Error');
+                    if (input && input.required && input.value.trim() === '') {
+                        if (error) error.textContent = 'This field is required.';
+                        isValid = false;
+                    } else if (error) {
+                        error.textContent = '';
+                    }
+                });
+
+                const formMessage = document.getElementById('formMessage');
+                if (formMessage) {
+                    if (isValid) {
+                        formMessage.textContent = 'Thank you! Your consultation request has been sent. We will be in touch shortly.';
+                        formMessage.style.color = '#4a7c59';
+                        contactForm.reset();
+                    } else {
+                        formMessage.textContent = 'Please correct the errors above.';
+                        formMessage.style.color = '#cc0000';
+                    }
                 }
             });
-
-            const formMessage = document.getElementById('formMessage');
-            if (isValid) {
-                // Simulate form submission success
-                formMessage.textContent = 'Thank you! Your consultation request has been sent. We will be in touch shortly.';
-                formMessage.style.color = '#4a7c59';
-                this.reset();
-                
-                // In a real application, you would send data via fetch/XMLHttpRequest here
-                // Example: fetch('/submit-form', { method: 'POST', body: new FormData(this) });
-                
-            } else {
-                formMessage.textContent = 'Please correct the errors above.';
-                formMessage.style.color = '#cc0000';
-            }
-        });
+        }
         
-        
-        // --- 8. Smooth Scrolling for Navigation (Updated for new nav) ---
-        document.querySelectorAll('.nav a[href^="#"], .hero-cta a[href^="#"]').forEach(anchor => {
+        // --- 8. Smooth Scrolling ---
+        document.querySelectorAll('.nav a[href^="#"], .hero-cta a[href^="#"], .mobile-nav a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const targetId = this.getAttribute('href');
                 const target = document.querySelector(targetId);
                 
-                // Offset calculation for fixed header height
-                const yOffset = document.getElementById('header').offsetHeight + 20; 
-                
                 if (target) {
+                    const header = document.getElementById('header');
+                    const yOffset = header ? header.offsetHeight + 20 : 20;
                     const y = target.getBoundingClientRect().top + window.pageYOffset - yOffset;
                     
                     window.scrollTo({
@@ -208,22 +291,76 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // --- 9. Active navigation highlighting ---
+        // --- 9. Active Navigation ---
+        initActiveNavigation();
+        
+        console.log('All animations initialized');
+    }
+    
+    function initFallbackAnimations() {
+        console.log('Using fallback animations');
+        
+        // Initialize mobile menu for fallback too
+        initMobileMenu();
+        
+        // Basic scroll progress without GSAP
+        const scrollProgress = document.getElementById('scrollProgress');
+        if (scrollProgress) {
+            window.addEventListener('scroll', function() {
+                const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (window.scrollY / windowHeight) * 100;
+                scrollProgress.style.width = scrolled + '%';
+            });
+        }
+        
+        // Basic header scroll effect
+        const header = document.getElementById('header');
+        if (header) {
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 100) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+        }
+        
+        // Hide custom cursor on touch devices
+        if (isTouchDevice) {
+            const cursorDot = document.getElementById('cursorDot');
+            const cursorRing = document.getElementById('cursorRing');
+            if (cursorDot) cursorDot.style.display = 'none';
+            if (cursorRing) cursorRing.style.display = 'none';
+        }
+    }
+    
+    function initActiveNavigation() {
         const sections = document.querySelectorAll('section[id]');
         const navLinks = document.querySelectorAll('.nav a:not(.btn-header-cta)');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav a:not(.btn-header-cta)');
         
         function updateActiveNav() {
             let current = '';
+            const header = document.getElementById('header');
+            const headerHeight = header ? header.offsetHeight : 0;
+            
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                // Offset by header height to ensure correct section highlighting
-                if (window.pageYOffset >= sectionTop - document.getElementById('header').offsetHeight - 50) {
+                if (window.pageYOffset >= sectionTop - headerHeight - 50) {
                     current = section.getAttribute('id');
                 }
             });
             
+            // Update desktop navigation
             navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Update mobile navigation
+            mobileNavLinks.forEach(link => {
                 link.classList.remove('active');
                 if (link.getAttribute('href') === `#${current}`) {
                     link.classList.add('active');
@@ -243,4 +380,26 @@ document.addEventListener('DOMContentLoaded', function() {
         
         updateActiveNav();
     }
+    
+    // Handle window resize for responsive behavior
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            // Close mobile menu on resize to larger screens
+            if (window.innerWidth > 768) {
+                const mobileMenu = document.getElementById('mobileMenu');
+                const mobileNav = document.querySelector('.mobile-nav');
+                const mobileNavOverlay = document.querySelector('.mobile-nav-overlay');
+                
+                if (mobileMenu && mobileNav && mobileNavOverlay) {
+                    mobileMenu.classList.remove('open');
+                    mobileNav.classList.remove('active');
+                    mobileNavOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    mobileMenu.setAttribute('aria-expanded', 'false');
+                }
+            }
+        }, 250);
+    });
 });
