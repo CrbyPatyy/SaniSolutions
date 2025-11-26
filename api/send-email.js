@@ -62,32 +62,178 @@ export default async function handler(req, res) {
         to: ['macepilapil74.mp@gmail.com'], // Your email
         reply_to: body.email,
         subject: `New Consultation Request from ${body.name}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
-              New Consultation Request
-            </h2>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
-              <h3 style="color: #007bff; margin-top: 0;">Contact Information</h3>
-              <p><strong>Name:</strong> ${body.name}</p>
-              <p><strong>Email:</strong> ${body.email}</p>
-              <p><strong>Business Type:</strong> ${body.businessType || 'Not specified'}</p>
-              <p><strong>Service Interest:</strong> ${body.serviceInterest || 'Not specified'}</p>
+        // In your resend.emails.send() - REPLACE THE HTML PART:
+html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Consultation Request</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: #f8f9fa;
+        }
+        .email-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+        .header {
+            background: linear(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .section h3 {
+            color: #007bff;
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .label {
+            font-weight: 600;
+            color: #555;
+            display: block;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .value {
+            color: #333;
+            font-size: 15px;
+        }
+        .message-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            margin-top: 10px;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+            color: #666;
+            font-size: 14px;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        @media (max-width: 600px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>New Consultation Request</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Sani Solutions</p>
+        </div>
+        
+        <div class="content">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <p style="color: #666; font-size: 16px; margin: 0;">
+                    You have received a new consultation request from your website.
+                </p>
             </div>
 
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
-              <h3 style="color: #007bff; margin-top: 0;">Support Needs</h3>
-              <p style="white-space: pre-line;">${body.message}</p>
+            <div class="section">
+                <h3>👤 Client Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Full Name</span>
+                        <span class="value">${body.name}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Email Address</span>
+                        <span class="value">${body.email}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Business Type</span>
+                        <span class="value">${getBusinessTypeLabel(body.businessType)}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Service Interest</span>
+                        <span class="value">${getServiceInterestLabel(body.serviceInterest)}</span>
+                    </div>
+                </div>
             </div>
 
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-              <p style="color: #666; font-size: 14px;">
-                This message was sent from your Sani Solutions website contact form.
-              </p>
+            <div class="section">
+                <h3>💬 Project Details</h3>
+                <span class="label">Client's Message:</span>
+                <div class="message-content">
+                    ${body.message.replace(/\n/g, '<br>')}
+                </div>
             </div>
-          </div>
-        `,
+
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="mailto:${body.email}" class="cta-button">
+                    Reply to Client
+                </a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 0 0 10px 0;">
+                <strong>Sent from Sani Solutions Website</strong>
+            </p>
+            <p style="margin: 0; font-size: 13px; opacity: 0.8;">
+                This email was generated automatically from your contact form.<br>
+                Please respond within 24 hours for best client experience.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+`,
       });
 
       if (error) {
@@ -123,4 +269,5 @@ export default async function handler(req, res) {
     });
   }
 }
+
 
