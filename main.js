@@ -1,19 +1,4 @@
-// Register service worker for offline functionality
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        try {
-            navigator.serviceWorker.register('/sw.js')
-            .then(function(registration) {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            })
-            .catch(function(error) {
-                console.log('ServiceWorker registration failed: ', error);
-            });
-        } catch (error) {
-            console.error('Service Worker registration error:', error);
-        }
-    });
-}
+
 
 // Enhanced JavaScript with GSAP and all requested features
 
