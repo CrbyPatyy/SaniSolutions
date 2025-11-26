@@ -17,6 +17,7 @@
     <meta property="og:site_name" content="SaniSolutions">
     
     <link rel="canonical" href="https://SaniSolutions.com">
+    <link rel="icon" href="images/logo.jpg">
     
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" as="script">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" as="script">
@@ -49,9 +50,7 @@
 
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="scroll-progress" id="scrollProgress"></div>
-    <div class="offline-message" id="offlineMessage">You appear to be offline. Some features may not be available.</div>
 
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-logo">SaniSolutions</div>
@@ -335,48 +334,60 @@
                     </div>
                 </div>
                 <div class="contact-form-container">
-                    <form class="contact-form" id="contactForm" novalidate>
-                        <div class="form-group">
-                            <label for="name">Your Name *</label>
-                            <input type="text" id="name" name="name" required aria-required="true">
-                            <span class="error-message" id="nameError" aria-live="polite"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Work Email *</label>
-                            <input type="email" id="email" name="email" required aria-required="true">
-                            <span class="error-message" id="emailError" aria-live="polite"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="businessType">Your Business Type</label>
-                            <select id="businessType" name="businessType" required aria-required="true">
-                                <option value="">Select industry/type</option>
-                                <option value="tech">Technology/SaaS</option>
-                                <option value="ecom">E-commerce/Retail</option>
-                                <option value="services">Professional Services (Law, Finance, etc.)</option>
-                                <option value="other">Other/Not listed</option>
-                            </select>
-                            <span class="error-message" id="businessTypeError" aria-live="polite"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="serviceInterest">Primary Service Interest *</label>
-                            <select id="serviceInterest" name="serviceInterest" required aria-required="true">
-                                <option value="">Select a service</option>
-                                <option value="admin">Administrative & Back-Office Support</option>
-                                <option value="customer">Customer Support & Lead Setting</option>
-                                <option value="webdev">Web Development / Automation</option>
-                                <option value="full">Full-Service Dedicated VA</option>
-                            </select>
-                            <span class="error-message" id="serviceInterestError" aria-live="polite"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Describe Your Support Needs *</label>
-                            <textarea id="message" name="message" required aria-required="true"></textarea>
-                            <span class="error-message" id="messageError" aria-live="polite"></span>
-                        </div>
-                        <button type="submit" class="form-submit">Book Free Consultation</button>
-                        <div class="form-message" id="formMessage" aria-live="polite"></div>
-                    </form>
-                </div>
+    <form class="contact-form" id="contactForm" novalidate>
+        <!-- HONEY POT FIELD - ADD THIS -->
+        <div class="form-group" style="display: none; opacity: 0; position: absolute; left: -9999px;" aria-hidden="true">
+            <label for="company_name">Company Name</label>
+            <input type="text" id="company_name" name="company_name" tabindex="-1" autocomplete="off" value="">
+        </div>
+        
+        <!-- YOUR EXISTING FIELDS -->
+        <div class="form-group">
+            <label for="name">Your Name *</label>
+            <input type="text" id="name" name="name" required aria-required="true">
+            <span class="error-message" id="nameError" aria-live="polite"></span>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Work Email *</label>
+            <input type="email" id="email" name="email" required aria-required="true">
+            <span class="error-message" id="emailError" aria-live="polite"></span>
+        </div>
+        
+        <div class="form-group">
+            <label for="businessType">Your Business Type</label>
+            <select id="businessType" name="businessType" required aria-required="true">
+                <option value="">Select industry/type</option>
+                <option value="tech">Technology/SaaS</option>
+                <option value="ecom">E-commerce/Retail</option>
+                <option value="services">Professional Services (Law, Finance, etc.)</option>
+                <option value="other">Other/Not listed</option>
+            </select>
+            <span class="error-message" id="businessTypeError" aria-live="polite"></span>
+        </div>
+        
+        <div class="form-group">
+            <label for="serviceInterest">Primary Service Interest *</label>
+            <select id="serviceInterest" name="serviceInterest" required aria-required="true">
+                <option value="">Select a service</option>
+                <option value="admin">Administrative & Back-Office Support</option>
+                <option value="customer">Customer Support & Lead Setting</option>
+                <option value="webdev">Web Development / Automation</option>
+                <option value="full">Full-Service Dedicated VA</option>
+            </select>
+            <span class="error-message" id="serviceInterestError" aria-live="polite"></span>
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Describe Your Support Needs *</label>
+            <textarea id="message" name="message" required aria-required="true"></textarea>
+            <span class="error-message" id="messageError" aria-live="polite"></span>
+        </div>
+        
+        <button type="submit" class="form-submit">Book Free Consultation</button>
+        <div class="form-message" id="formMessage" aria-live="polite"></div>
+    </form>
+</div>
             </div>
         </section>
     </main>
@@ -391,6 +402,7 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
