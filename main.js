@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Sending form data to Resend API...');
 
                 // Send to Resend API
-                const response = await fetch('https://sani-solutions.vercel.app/api/send-email' {
+                const response = await fetch('/api/send-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -546,4 +546,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 250);
     });
 });
+
 
