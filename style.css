@@ -5,7 +5,7 @@
     --color-dark: #1a1a1a; /* Charcoal Black */
     --color-light: #ffffff; /* White */
     --color-text-light: #555555; /* Medium Gray */
-    --font-primary: 'Helvetica Neue', sans-serif;
+    --font-primary: 'Helvetica Neue', Arial, sans-serif;
     --border-radius: 12px;
     --reduce-motion: no-preference;
 }
@@ -22,6 +22,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: var(--font-primary);
     background: var(--color-light);
@@ -29,7 +33,6 @@ body {
     font-weight: 300;
     letter-spacing: 0.01em;
     overflow-x: hidden;
-    cursor: none; /* Custom cursor style */
     line-height: 1.6;
 }
 
@@ -53,11 +56,11 @@ h1, h2, h3, h4 {
 }
 
 h1 {
-    font-size: clamp(3rem, 7vw, 5rem);
+    font-size: clamp(2.5rem, 7vw, 5rem);
 }
 
 h2 {
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: clamp(1.8rem, 4vw, 3rem);
 }
 
 h3 {
@@ -66,7 +69,7 @@ h3 {
 }
 
 p, ul {
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 1.5vw, 1.1rem);
     color: var(--color-text-light);
 }
 
@@ -92,7 +95,7 @@ a {
 }
 
 .content-section {
-    padding: 80px 5vw;
+    padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 5vw);
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -100,7 +103,7 @@ a {
 .section-header {
     text-align: center;
     max-width: 800px;
-    margin: 0 auto 50px;
+    margin: 0 auto clamp(30px, 5vw, 50px);
 }
 
 .section-header h2 {
@@ -141,39 +144,10 @@ a {
 }
 
 .loading-logo {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2rem);
     font-weight: 700;
     letter-spacing: 0.1em;
     opacity: 0;
-}
-
-/* Custom Cursor */
-.cursor-dot, .cursor-ring {
-    pointer-events: none;
-    position: fixed;
-    border-radius: 50%;
-    z-index: 10000;
-    opacity: 0;
-    transition: opacity 0.3s, transform 0.1s ease-out;
-}
-
-.cursor-dot {
-    width: 8px;
-    height: 8px;
-    background-color: var(--color-primary);
-    transform: translate(-50%, -50%);
-}
-
-.cursor-ring {
-    width: 40px;
-    height: 40px;
-    border: 2px solid var(--color-primary);
-    transform: translate(-50%, -50%) scale(1);
-}
-
-.cursor-ring.grow {
-    transform: translate(-50%, -50%) scale(1.5);
-    opacity: 0.8;
 }
 
 /* NEW: Fixed Header/Navigation */
@@ -185,7 +159,7 @@ a {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 5vw;
+    padding: clamp(15px, 4vw, 20px) clamp(15px, 5vw, 5vw);
     z-index: 1000;
     background: var(--color-light);
     transition: background-color 0.3s, box-shadow 0.3s;
@@ -196,15 +170,20 @@ a {
 }
 
 .header .logo {
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
     font-weight: 700;
     letter-spacing: 0.05em;
 }
 
+.nav {
+    display: flex;
+    align-items: center;
+}
+
 .nav a {
-    margin-left: 30px;
+    margin-left: clamp(15px, 2vw, 30px);
     text-transform: uppercase;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
     font-weight: 500;
     position: relative;
 }
@@ -229,10 +208,10 @@ a {
 /* CTA Button Styles */
 .btn {
     display: inline-flex;
-    padding: 14px 28px;
+    padding: clamp(12px, 3vw, 14px) clamp(20px, 4vw, 28px);
     border-radius: 50px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     transition: all 0.3s ease;
@@ -240,6 +219,9 @@ a {
     overflow: hidden;
     position: relative;
     z-index: 1;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-primary {
@@ -267,10 +249,10 @@ a {
 .btn-header-cta {
     background: var(--color-dark);
     color: var(--color-light);
-    padding: 10px 20px;
+    padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 20px);
     border-radius: 6px;
     border: 1px solid var(--color-dark);
-    margin-left: 20px !important;
+    margin-left: clamp(10px, 2vw, 20px) !important;
 }
 
 .btn-header-cta:hover {
@@ -298,7 +280,7 @@ a {
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 100px 5vw 50px;
+    padding: clamp(80px, 15vw, 100px) clamp(15px, 5vw, 5vw) clamp(30px, 8vw, 50px);
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -306,6 +288,7 @@ a {
 .hero .eyebrow {
     margin-bottom: 20px;
     color: var(--color-text-light);
+    font-size: clamp(0.8rem, 2vw, 1rem);
 }
 
 .hero .headline {
@@ -316,17 +299,25 @@ a {
 .hero .subtext {
     max-width: 700px;
     margin-bottom: 40px;
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 2vw, 1.2rem);
     color: var(--color-dark);
 }
 
-.hero-cta a {
-    margin: 0 10px;
+.hero-cta {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
+.hero-cta a {
+    margin: 0;
+}
+
+ /* Scroll Indicator - Default (Desktop/Tablet) */
 .scroll-indicator {
     position: absolute;
-    bottom: 30px;
+    bottom: 5px;
     height: 50px;
     width: 25px;
     border: 1px solid var(--color-dark);
@@ -353,16 +344,48 @@ a {
     100% { transform: translateY(0); opacity: 0.8; }
 }
 
+/* Phone View Only Fix */
+@media (max-width: 768px) {
+    .scroll-indicator {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 40px;
+        width: 22px;
+    }
+    
+    .scroll-indicator::after {
+        width: 3px;
+        height: 8px;
+    }
+}
+
+/* Extra Small Phones */
+@media (max-width: 480px) {
+    .scroll-indicator {
+        bottom: 15px;
+        height: 35px;
+        width: 20px;
+    }
+}
+
+@keyframes scroll-down {
+    0% { transform: translateY(0); opacity: 0.8; }
+    50% { transform: translateY(15px); opacity: 0.2; }
+    100% { transform: translateY(0); opacity: 0.8; }
+}
+
 /* 2. Services Section */
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: clamp(20px, 4vw, 30px);
 }
 
 .service-card {
     background: var(--color-light);
-    padding: 30px;
+    padding: clamp(20px, 4vw, 30px);
     border-radius: var(--border-radius);
     border: 1px solid var(--color-secondary);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
@@ -375,7 +398,7 @@ a {
 }
 
 .service-icon {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 5vw, 2.5rem);
     color: var(--color-primary);
     margin-bottom: 20px;
 }
@@ -388,7 +411,7 @@ a {
 .bullet-list {
     list-style: none;
     padding-left: 0;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
     line-height: 2.0;
 }
 
@@ -396,12 +419,14 @@ a {
     display: flex;
     align-items: center;
     color: var(--color-text-light);
+    margin-bottom: 5px;
 }
 
 .bullet-list .fas {
     color: var(--color-primary);
     margin-right: 10px;
     font-size: 0.9rem;
+    min-width: 16px;
 }
 
 /* 3. Why Choose Us Section */
@@ -411,13 +436,13 @@ a {
 
 .why-us-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+    gap: clamp(20px, 4vw, 30px);
 }
 
 .why-us-card {
     background: var(--color-light);
-    padding: 40px;
+    padding: clamp(25px, 5vw, 40px);
     border-radius: var(--border-radius);
     transition: background 0.3s;
     border: 1px solid var(--color-secondary);
@@ -429,18 +454,18 @@ a {
 }
 
 .why-us-card h3 {
-    font-size: 1.3rem;
+    font-size: clamp(1.1rem, 2vw, 1.3rem);
     font-weight: 600;
     color: var(--color-dark);
     margin-bottom: 10px;
 }
 
 .why-us-card p {
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
 }
 
 .feature-icon {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     color: var(--color-primary);
     margin-bottom: 15px;
 }
@@ -448,20 +473,20 @@ a {
 /* 4. Pricing Plans */
 .pricing-subtext {
     max-width: 600px;
-    margin: 0 auto 50px;
+    margin: 0 auto clamp(30px, 5vw, 50px);
     text-align: center;
 }
 
 .pricing-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: clamp(20px, 4vw, 30px);
     align-items: stretch;
 }
 
 .pricing-card {
     background: var(--color-light);
-    padding: 40px;
+    padding: clamp(25px, 5vw, 40px);
     border-radius: var(--border-radius);
     text-align: center;
     border: 1px solid var(--color-secondary);
@@ -488,30 +513,32 @@ a {
 }
 
 .pricing-name {
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
     font-weight: 700;
     color: var(--color-dark);
     margin-bottom: 10px;
 }
 
 .pricing-price {
-    font-size: 2.8rem;
+    font-size: clamp(2rem, 6vw, 2.8rem);
     font-weight: 600;
     color: var(--color-primary);
     margin-bottom: 10px;
     line-height: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.pricing-price span {
-    font-size: 1rem;
+.price-period {
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
     font-weight: 400;
     color: var(--color-text-light);
-    display: block;
     margin-top: 5px;
 }
 
 .pricing-tagline {
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
     color: var(--color-text-light);
     margin-bottom: 25px;
     min-height: 40px;
@@ -525,7 +552,7 @@ a {
 }
 
 .pricing-features li {
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
     color: var(--color-dark);
     padding: 10px 0;
     border-bottom: 1px dashed var(--color-secondary);
@@ -536,6 +563,7 @@ a {
 .pricing-features li .fas {
     color: var(--color-primary);
     margin-right: 10px;
+    min-width: 16px;
 }
 
 .pricing-cta {
@@ -547,7 +575,9 @@ a {
     background: var(--color-dark);
     color: var(--color-light);
     font-weight: 600;
+    text-align: center;
     transition: background 0.3s;
+    text-decoration: none;
 }
 
 .pricing-cta:hover {
@@ -565,13 +595,13 @@ a {
 
 .testimonials-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: clamp(20px, 4vw, 30px);
 }
 
 .testimonial {
     background: var(--color-light);
-    padding: 30px;
+    padding: clamp(20px, 4vw, 30px);
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: column;
@@ -580,7 +610,7 @@ a {
 }
 
 .testimonial-quote {
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 1.5vw, 1.1rem);
     font-style: italic;
     color: var(--color-dark);
     margin-bottom: 25px;
@@ -589,7 +619,7 @@ a {
 
 .testimonial-quote::before {
     content: '"';
-    font-size: 3rem;
+    font-size: clamp(2rem, 5vw, 3rem);
     color: var(--color-primary);
     position: absolute;
     top: -15px;
@@ -616,6 +646,7 @@ a {
     font-weight: 600;
     font-size: 1rem;
     margin-right: 15px;
+    flex-shrink: 0;
 }
 
 .testimonial-info h4 {
@@ -634,9 +665,9 @@ a {
 .contact-container {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
-    gap: 50px;
+    gap: clamp(30px, 5vw, 50px);
     background: var(--color-light);
-    padding: 40px;
+    padding: clamp(25px, 5vw, 40px);
     border-radius: var(--border-radius);
     border: 1px solid var(--color-secondary);
 }
@@ -656,7 +687,7 @@ a {
 .contact-detail {
     display: flex;
     align-items: center;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
     margin-bottom: 15px;
     color: var(--color-dark);
 }
@@ -667,11 +698,12 @@ a {
     font-size: 1.2rem;
     width: 20px;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .contact-form {
     background: var(--color-secondary);
-    padding: 40px;
+    padding: clamp(25px, 5vw, 40px);
     border-radius: var(--border-radius);
 }
 
@@ -746,13 +778,13 @@ a {
 
 /* Footer */
 .footer {
-    padding: 30px 5vw;
+    padding: clamp(20px, 4vw, 30px) clamp(15px, 5vw, 5vw);
     background: var(--color-dark);
     color: var(--color-secondary);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
     border-top: 1px solid var(--color-dark);
     max-width: 1400px;
     margin: 0 auto;
@@ -760,7 +792,7 @@ a {
 
 .footer-links a {
     color: var(--color-secondary);
-    margin-left: 20px;
+    margin-left: clamp(10px, 2vw, 20px);
     transition: color 0.3s;
 }
 
@@ -768,10 +800,113 @@ a {
     color: var(--color-primary);
 }
 
+/* Mobile Menu Toggle */
+.mobile-menu {
+    display: none;
+    position: fixed;
+    right: clamp(15px, 5vw, 5vw);
+    top: 25px;
+    z-index: 1100;
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+}
+
+.mobile-menu span,
+.mobile-menu span::before,
+.mobile-menu span::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--color-dark);
+    position: absolute;
+    transition: transform 0.3s, top 0.3s, background 0.3s;
+}
+
+.mobile-menu span {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mobile-menu span::before {
+    top: -10px;
+}
+
+.mobile-menu span::after {
+    top: 10px;
+}
+
+.mobile-menu.open span {
+    background: transparent;
+}
+
+.mobile-menu.open span::before {
+    top: 0;
+    transform: rotate(45deg);
+}
+
+.mobile-menu.open span::after {
+    top: 0;
+    transform: rotate(-45deg);
+}
+
+/* Mobile Navigation Menu */
+.mobile-nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    background: var(--color-light);
+    z-index: 1050;
+    padding: 80px 30px 30px;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.4s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-nav.active {
+    right: 0;
+}
+
+.mobile-nav a {
+    padding: 15px 0;
+    border-bottom: 1px solid var(--color-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+}
+
+.mobile-nav a:last-child {
+    border-bottom: none;
+    margin-top: 20px;
+}
+
+.mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.mobile-nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
 /* Media Queries for Responsiveness */
 @media (max-width: 1024px) {
     .header .nav a {
-        margin-left: 20px;
+        margin-left: 15px;
     }
 
     .contact-container {
@@ -789,11 +924,15 @@ a {
 
 @media (max-width: 768px) {
     .header {
-        padding: 15px 5vw;
+        padding: 15px clamp(15px, 5vw, 5vw);
     }
     
     .nav {
         display: none; /* Hide main nav on small screens */
+    }
+
+    .mobile-menu {
+        display: block;
     }
 
     .hero {
@@ -803,11 +942,10 @@ a {
     }
 
     .hero .headline {
-        font-size: clamp(2.5rem, 8vw, 4rem);
+        font-size: clamp(2rem, 8vw, 3rem);
     }
 
     .hero-cta {
-        display: flex;
         flex-direction: column;
         width: 100%;
         max-width: 300px;
@@ -821,75 +959,77 @@ a {
     .footer {
         flex-direction: column;
         text-align: center;
+        gap: 15px;
     }
     
     .footer-links {
-        margin-top: 15px;
+        margin-top: 0;
     }
 
     .footer-links a {
         margin: 0 10px;
     }
     
-    /* Mobile Menu Toggle */
-    .mobile-menu {
-        display: block;
-        position: fixed;
-        right: 5vw;
-        top: 25px;
-        z-index: 1100;
-        width: 30px;
-        height: 25px;
-        cursor: pointer;
-    }
-
-    .mobile-menu span,
-    .mobile-menu span::before,
-    .mobile-menu span::after {
-        content: '';
-        display: block;
-        width: 100%;
-        height: 2px;
-        background: var(--color-dark);
-        position: absolute;
-        transition: transform 0.3s, top 0.3s, background 0.3s;
-    }
-
-    .mobile-menu span {
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .mobile-menu span::before {
-        top: -10px;
-    }
-
-    .mobile-menu span::after {
-        top: 10px;
-    }
-
-    .mobile-menu.open span {
-        background: transparent;
-    }
-
-    .mobile-menu.open span::before {
-        top: 0;
-        transform: rotate(45deg);
-    }
-
-    .mobile-menu.open span::after {
-        top: 0;
-        transform: rotate(-45deg);
+    .pricing-price {
+        flex-direction: column;
     }
     
-    /* Mobile Navigation Drawer (Optional - JS must handle its display) */
-    /* This requires JS to dynamically insert/style the full mobile menu */
+    .contact-detail {
+        font-size: 0.9rem;
+    }
 }
 
-/* Disable custom cursor on touch devices */
-body.touch-device .cursor-dot,
-body.touch-device .cursor-ring {
-    display: none !important;
+@media (max-width: 480px) {
+    .hero {
+        padding-top: 80px;
+    }
+    
+    .hero .headline {
+        font-size: clamp(1.8rem, 10vw, 2.5rem);
+    }
+    
+    .hero .subtext {
+        font-size: 1rem;
+    }
+    
+    .services-grid,
+    .why-us-grid,
+    .pricing-grid,
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-container {
+        padding: 20px;
+    }
+    
+    .contact-form {
+        padding: 20px;
+    }
+    
+    .testimonial-author {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .testimonial-avatar {
+        margin-bottom: 10px;
+    }
+}
+
+/* Tablet-specific adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .why-us-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* Ensure focus states are accessible */
@@ -900,4 +1040,27 @@ textarea:focus-visible,
 select:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 4px;
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+    .service-card:hover,
+    .why-us-card:hover,
+    .pricing-card:hover {
+        transform: none;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+}
+
+/* High DPI screen optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .service-card,
+    .why-us-card,
+    .pricing-card,
+    .testimonial {
+        border-width: 0.5px;
+    }
 }
