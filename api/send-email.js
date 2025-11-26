@@ -59,7 +59,7 @@ export default async function handler(req, res) {
       // Send email
       const { data, error } = await resend.emails.send({
         from: 'Sani Solutions <onboarding@resend.dev>',
-        to: ['patrickpilapil7@gmail.com'], // Your email
+        to: ['macepilapil74.mp@gmail.com'], // Your email
         reply_to: body.email,
         subject: `New Consultation Request from ${body.name}`,
         html: `
@@ -123,3 +123,4 @@ export default async function handler(req, res) {
     });
   }
 }
+
