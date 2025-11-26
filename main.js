@@ -142,6 +142,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize mobile menu
         initMobileMenu();
         
+        // Initialize contact form
+        initContactForm();
+        
         // Safe GSAP animations with fallbacks
         if (typeof gsap !== 'undefined') {
             try {
@@ -158,24 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 gsap.from(".hero .subtext", { opacity: 0, y: 20, duration: 1, delay: 0.8 });
                 gsap.from(".hero-cta a", { opacity: 0, y: 20, stagger: 0.2, duration: 0.8, delay: 1 });
 
-                // --- 2. Header Scroll Behavior ---
-                const header = document.getElementById('header');
-                if (header && typeof ScrollTrigger !== 'undefined') {
-                    ScrollTrigger.create({
-                        trigger: document.body,
-                        start: "top -100px", 
-                        end: "bottom bottom",
-                        onUpdate: (self) => {
-                            if (self.direction === 1) { // Scrolling down
-                                gsap.to(header, { y: -header.offsetHeight, duration: 0.3 });
-                            } else { // Scrolling up
-                                gsap.to(header, { y: 0, duration: 0.3 });
-                            }
-                        },
-                        onLeaveBack: () => header.classList.remove('scrolled'),
-                        onEnter: () => header.classList.add('scrolled'),
-                    });
-                }
 
                 // --- 3. Scroll Progress Bar ---
                 if (typeof ScrollTrigger !== 'undefined') {
@@ -238,40 +223,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // GSAP not available at all
             initFallbackAnimations();
         }
-
-        // --- 7. Form Validation ---
-        const contactForm = document.getElementById('contactForm');
-        if (contactForm) {
-            contactForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                let isValid = true;
-                
-                ['name', 'email', 'message', 'businessType', 'serviceInterest'].forEach(id => {
-                    const input = document.getElementById(id);
-                    const error = document.getElementById(id + 'Error');
-                    if (input && input.required && input.value.trim() === '') {
-                        if (error) error.textContent = 'This field is required.';
-                        isValid = false;
-                    } else if (error) {
-                        error.textContent = '';
-                    }
-                });
-
-                const formMessage = document.getElementById('formMessage');
-                if (formMessage) {
-                    if (isValid) {
-                        formMessage.textContent = 'Thank you! Your consultation request has been sent. We will be in touch shortly.';
-                        formMessage.style.color = '#4a7c59';
-                        contactForm.reset();
-                    } else {
-                        formMessage.textContent = 'Please correct the errors above.';
-                        formMessage.style.color = '#cc0000';
-                    }
-                }
-            });
-        }
         
-        // --- 8. Smooth Scrolling ---
+        // --- 7. Smooth Scrolling ---
         document.querySelectorAll('.nav a[href^="#"], .hero-cta a[href^="#"], .mobile-nav a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -291,10 +244,197 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // --- 9. Active Navigation ---
+        // --- 8. Active Navigation ---
         initActiveNavigation();
         
         console.log('All animations initialized');
+    }
+    
+    // NEW: Contact Form Handler with Resend API
+    function initContactForm() {
+        const contactForm = document.getElementById('contactForm');
+        if (!contactForm) return;
+
+        const submitBtn = contactForm.querySelector('.form-submit');
+        const formMessage = document.getElementById('formMessage');
+
+        // Real-time validation
+        const fields = ['name', 'email', 'businessType', 'serviceInterest', 'message'];
+        
+        fields.forEach(field => {
+            const element = document.getElementById(field);
+            if (element) {
+                element.addEventListener('blur', validateField);
+                element.addEventListener('input', clearFieldError);
+            }
+        });
+
+        function validateField(e) {
+            const field = e.target;
+            const errorElement = document.getElementById(field.id + 'Error');
+            
+            clearFieldError(e);
+
+            if (field.required && !field.value.trim()) {
+                showFieldError(field, errorElement, 'This field is required');
+                return false;
+            }
+
+            if (field.type === 'email' && field.value.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(field.value.trim())) {
+                    showFieldError(field, errorElement, 'Please enter a valid work email address');
+                    return false;
+                }
+            }
+
+            if (field.tagName === 'SELECT' && field.required && !field.value) {
+                showFieldError(field, errorElement, 'Please select an option');
+                return false;
+            }
+
+            return true;
+        }
+
+        function showFieldError(field, errorElement, message) {
+            field.style.borderColor = '#e74c3c';
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function clearFieldError(e) {
+            const field = e.target;
+            const errorElement = document.getElementById(field.id + 'Error');
+            field.style.borderColor = '';
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+
+        function validateForm() {
+            let isValid = true;
+            let firstErrorField = null;
+            
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(fieldId + 'Error');
+                
+                if (field.required && !field.value.trim()) {
+                    showFieldError(field, errorElement, 'This field is required');
+                    isValid = false;
+                    if (!firstErrorField) firstErrorField = field;
+                } else if (field.type === 'email' && field.value.trim()) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(field.value.trim())) {
+                        showFieldError(field, errorElement, 'Please enter a valid work email address');
+                        isValid = false;
+                        if (!firstErrorField) firstErrorField = field;
+                    }
+                } else if (field.tagName === 'SELECT' && field.required && !field.value) {
+                    showFieldError(field, errorElement, 'Please select an option');
+                    isValid = false;
+                    if (!firstErrorField) firstErrorField = field;
+                }
+            });
+
+            // Scroll to first error
+            if (firstErrorField) {
+                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstErrorField.focus();
+            }
+
+            return isValid;
+        }
+
+        function showMessage(message, type) {
+            formMessage.textContent = message;
+            formMessage.className = `form-message ${type}`;
+            formMessage.style.display = 'block';
+            
+            // Scroll to message
+            formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Auto-hide success messages after 8 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    formMessage.style.display = 'none';
+                }, 8000);
+            }
+        }
+
+        // Form submission
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate all fields
+            if (!validateForm()) {
+                showMessage('Please fix the errors above before submitting.', 'error');
+                return;
+            }
+
+            // Disable submit button and show loading state
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.style.opacity = '0.7';
+            formMessage.style.display = 'none';
+
+            try {
+                // Get form data including honey pot
+                const formData = {
+                    name: document.getElementById('name').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    businessType: document.getElementById('businessType').value,
+                    serviceInterest: document.getElementById('serviceInterest').value,
+                    message: document.getElementById('message').value.trim(),
+                    company_name: document.getElementById('company_name')?.value || '' // Honey pot field
+                };
+
+                console.log('Sending form data to Resend API...');
+
+                // Send to Resend API
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success
+                    showMessage('Thank you! Your consultation request has been sent successfully. We\'ll get back to you within 24 hours.', 'success');
+                    contactForm.reset();
+                } else {
+                    // Error from API
+                    console.error('API Error:', result);
+                    showMessage(result.error || 'Sorry, there was an error sending your message. Please try again.', 'error');
+                }
+            } catch (error) {
+                // Network error
+                console.error('Network Error:', error);
+                showMessage('Network error. Please check your internet connection and try again.', 'error');
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                submitBtn.style.opacity = '1';
+            }
+        });
+
+        // Add input styling for better UX
+        const inputs = contactForm.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#007bff';
+                this.style.boxShadow = '0 0 0 2px rgba(0, 123, 255, 0.25)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.boxShadow = '';
+            });
+        });
     }
     
     function initFallbackAnimations() {
@@ -302,6 +442,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Initialize mobile menu for fallback too
         initMobileMenu();
+        
+        // Initialize contact form
+        initContactForm();
         
         // Basic scroll progress without GSAP
         const scrollProgress = document.getElementById('scrollProgress');
