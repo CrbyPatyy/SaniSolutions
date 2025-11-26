@@ -1,69 +1,97 @@
-// api/send-email.js - WITH EMAIL FUNCTIONALITY
-export default async function handler(req, res) {
-  console.log('🚀 API: Request received');
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Helper functions
+function getBusinessTypeLabel(type) {
+  const labels = {
+    'tech': 'Technology/SaaS',
+    'ecom': 'E-commerce/Retail', 
+    'services': 'Professional Services',
+    'other': 'Other Industry',
+    '': 'Not specified'
+  };
+  return labels[type] || type || 'Not specified';
+}
+
+function getServiceInterestLabel(service) {
+  const labels = {
+    'admin': 'Administrative & Back-Office Support',
+    'customer': 'Customer Support & Lead Setting',
+    'webdev': 'Web Development / Automation',
+    'full': 'Full-Service Dedicated VA'
+  };
+  return labels[service] || service || 'Not specified';
+}
+
+// Rate limiting
+const rateLimitMap = new Map();
+
+function rateLimit(ip) {
+  const now = Date.now();
+  const windowStart = now - (15 * 60 * 1000);
   
-  // Set CORS headers
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, []);
+  }
+  
+  const requests = rateLimitMap.get(ip);
+  const validRequests = requests.filter(time => time > windowStart);
+  rateLimitMap.set(ip, validRequests);
+  
+  if (validRequests.length >= 5) {
+    return false;
+  }
+  
+  validRequests.push(now);
+  return true;
+}
+
+export default async function handler(req, res) {
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle preflight request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    // Rate limiting
+    const clientIP = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+    if (!rateLimit(clientIP)) {
+      return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    }
+
     const body = req.body;
-    console.log('🚀 API: Processing form submission');
-    
-    // Basic validation
+
+    // Honey pot check
+    if (body.company_name && body.company_name.trim() !== '') {
+      return res.status(200).json({ message: 'Email sent successfully' });
+    }
+
+    // Validate required fields
     if (!body.name || !body.email || !body.message) {
-      return res.status(400).json({ 
-        error: 'Please fill in all required fields' 
-      });
+      return res.status(400).json({ error: 'Please fill in all required fields' });
     }
 
-    // Check if Resend API key is available
+    // Check if Resend is configured
     if (!process.env.RESEND_API_KEY) {
-      console.log('📧 Email: RESEND_API_KEY not found, storing form data only');
-      
-      // Store form data (in a real app, you'd save to database)
-      console.log('📧 Form data received (no email sent):', {
-        name: body.name,
-        email: body.email,
-        businessType: body.businessType,
-        serviceInterest: body.serviceInterest,
-        message: body.message
-      });
-      
-      return res.status(200).json({ 
-        success: true,
-        message: '✅ Form submitted successfully! We have received your consultation request.',
-        note: 'Email notifications are currently being set up'
-      });
+      return res.status(500).json({ error: 'Email service not configured' });
     }
 
-    // If Resend API key exists, send email
-    console.log('📧 Email: RESEND_API_KEY found, attempting to send email');
-    
-    try {
-      // Import Resend
-      const { Resend } = await import('resend');
-      const resend = new Resend(process.env.RESEND_API_KEY);
-
-      // Send email
-      const { data, error } = await resend.emails.send({
-        from: 'Sani Solutions <onboarding@resend.dev>',
-        to: ['macepilapil74.mp@gmail.com'], // Your email
-        reply_to: body.email,
-        subject: `New Consultation Request from ${body.name}`,
-        // In your resend.emails.send() - REPLACE THE HTML PART:
-html: `
+    // Send email
+    const { data, error } = await resend.emails.send({
+      from: 'Sani Solutions <onboarding@resend.dev>',
+      to: ['your-email@gmail.com'], // ⚠️ CHANGE TO YOUR EMAIL
+      reply_to: body.email,
+      subject: `New Consultation Request from ${body.name}`,
+      html: `
 <!DOCTYPE html>
 <html>
 <head>
@@ -78,16 +106,16 @@ html: `
             max-width: 600px; 
             margin: 0 auto; 
             background: #f8f9fa;
+            padding: 20px;
         }
         .email-container {
             background: white;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 20px;
         }
         .header {
-            background: linear(135deg, #007bff, #0056b3);
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             padding: 30px 20px;
             text-align: center;
@@ -167,6 +195,9 @@ html: `
             .content {
                 padding: 20px;
             }
+            body {
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -215,8 +246,8 @@ html: `
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-                <a href="mailto:${body.email}" class="cta-button">
-                    Reply to Client
+                <a href="mailto:${body.email}?subject=Re: Consultation Request&body=Hi ${body.name},%0A%0AThank you for your interest in Sani Solutions!" class="cta-button">
+                    📧 Reply to Client
                 </a>
             </div>
         </div>
@@ -233,41 +264,35 @@ html: `
     </div>
 </body>
 </html>
-`,
-      });
+      `,
+    });
 
-      if (error) {
-        console.error('❌ Email error:', error);
-        // Still return success to user, but log the error
-        return res.status(200).json({ 
-          success: true,
-          message: '✅ Form submitted successfully! We have received your consultation request.',
-          note: 'There was an issue with email notifications, but your form was saved'
-        });
-      }
-
-      console.log('✅ Email sent successfully:', data);
-      return res.status(200).json({ 
-        success: true,
-        message: '✅ Thank you! Your consultation request has been sent successfully. We will get back to you within 24 hours.'
-      });
-
-    } catch (emailError) {
-      console.error('❌ Email setup error:', emailError);
-      // Fallback - form still works even if email fails
-      return res.status(200).json({ 
-        success: true,
-        message: '✅ Form submitted successfully! We have received your consultation request.',
-        note: 'Email service temporarily unavailable'
-      });
+    if (error) {
+      console.error('Resend error:', error);
+      return res.status(400).json({ error: 'Failed to send email. Please try again.' });
     }
 
-  } catch (error) {
-    console.error('❌ Server error:', error);
-    return res.status(500).json({ 
-      error: 'Server error. Please try again later.' 
+    return res.status(200).json({ 
+      message: 'Thank you! Your consultation request has been sent successfully. We will get back to you within 24 hours.'
     });
+
+  } catch (error) {
+    console.error('Server error:', error);
+    return res.status(500).json({ error: 'Internal server error. Please try again later.' });
   }
 }
 
-
+// Clean up rate limiting
+setInterval(() => {
+  const now = Date.now();
+  const windowStart = now - (15 * 60 * 1000);
+  
+  for (const [ip, requests] of rateLimitMap.entries()) {
+    const validRequests = requests.filter(time => time > windowStart);
+    if (validRequests.length === 0) {
+      rateLimitMap.delete(ip);
+    } else {
+      rateLimitMap.set(ip, validRequests);
+    }
+  }
+}, 60 * 60 * 1000);
