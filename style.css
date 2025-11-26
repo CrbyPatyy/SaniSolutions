@@ -169,6 +169,17 @@ a {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
+/* Hide header when scrolling down, show when scrolling up */
+.header.hide {
+    transform: translateY(-100%);
+}
+
+/* Optional: Add this for smoother experience */
+html {
+    scroll-behavior: smooth;
+}
+
+
 .header .logo {
     font-size: clamp(1.2rem, 4vw, 1.5rem);
     font-weight: 700;
@@ -204,6 +215,7 @@ a {
     width: 100%;
     left: 0;
 }
+
 
 /* CTA Button Styles */
 .btn {
