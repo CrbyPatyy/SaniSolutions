@@ -82,56 +82,85 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Safe loading screen handler
-    function handleLoadingScreen() {
-        const loadingScreen = document.getElementById('loadingScreen');
-        
-        // If GSAP is available, use it for animations
-        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            try {
-                gsap.registerPlugin(ScrollTrigger);
-                
-                const loadingTimeline = gsap.timeline();
-                loadingTimeline
-                    .to('.loading-logo', {
-                        duration: 1.5,
-                        opacity: 1,
-                        y: 0,
-                        ease: 'power3.out'
-                    })
-                    .to('.loading-logo', {
-                        duration: 0.5,
-                        opacity: 0,
-                        scale: 1.1,
-                        ease: 'power2.in'
-                    }, "+0.5")
-                    .to(loadingScreen, {
-                        duration: 0.7,
-                        y: "-100%",
-                        ease: 'expo.inOut',
-                        onComplete: () => {
-                            if (loadingScreen) {
-                                loadingScreen.style.display = 'none';
-                            }
-                            initMainAnimations();
+   // Safe loading screen handler (PROPERLY FIXED)
+function handleLoadingScreen() {
+    const loadingScreen = document.getElementById('loadingScreen');
+    let animationsInitialized = false; // Track if animations already started
+    
+    function initializeAnimations() {
+        if (animationsInitialized) return; // Prevent multiple calls
+        animationsInitialized = true;
+        console.log('Initializing main animations');
+        initMainAnimations();
+    }
+    
+    if (!loadingScreen) {
+        console.log('No loading screen found, proceeding directly');
+        initializeAnimations();
+        return;
+    }
+
+    // Lock scrolling while the loader is visible
+    document.body.style.overflow = 'hidden';
+    
+    // Simple timeout fallback - if GSAP fails or takes too long
+    const fallbackTimeout = setTimeout(() => {
+        console.log('Fallback: Hiding loading screen after timeout');
+        if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+        }
+        document.body.style.overflow = '';
+        initializeAnimations();
+    }, 3000); // 3 second fallback
+
+    // If GSAP is available, use it for animations
+    if (typeof gsap !== 'undefined') {
+        try {
+            console.log('Using GSAP for loading animation');
+            // Wait a minimum time to ensure loader is visible
+            setTimeout(() => {
+                gsap.to(loadingScreen, {
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: 'power2.out',
+                    onComplete: () => {
+                        clearTimeout(fallbackTimeout); // Clear the fallback
+                        if (loadingScreen) {
+                            loadingScreen.style.display = 'none';
                         }
-                    });
-            } catch (e) {
-                console.warn('GSAP animation failed, using fallback:', e);
-                if (loadingScreen) {
-                    loadingScreen.style.display = 'none';
-                }
-                initMainAnimations();
-            }
-        } else {
-            // GSAP not available - immediate fallback
-            console.warn('GSAP not available, using fallback loading');
+                        document.body.style.overflow = '';
+                        console.log('GSAP loading complete');
+                        initializeAnimations();
+                    }
+                });
+            }, 1000); // Minimum 1 second show time
+        } catch (e) {
+            console.warn('GSAP animation failed, using fallback:', e);
+            clearTimeout(fallbackTimeout);
             if (loadingScreen) {
                 loadingScreen.style.display = 'none';
             }
-            initMainAnimations();
+            document.body.style.overflow = '';
+            initializeAnimations();
         }
+    } else {
+        // GSAP not available - use CSS transition
+        console.log('GSAP not available, using CSS transition');
+        clearTimeout(fallbackTimeout);
+        setTimeout(() => {
+            if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+            }
+            setTimeout(() => {
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                }
+                document.body.style.overflow = '';
+                initializeAnimations();
+            }, 800);
+        }, 1500);
     }
+}
     
     // Start loading process
     handleLoadingScreen();
@@ -225,24 +254,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // --- 7. Smooth Scrolling ---
-        document.querySelectorAll('.nav a[href^="#"], .hero-cta a[href^="#"], .mobile-nav a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                const target = document.querySelector(targetId);
-                
-                if (target) {
-                    const header = document.getElementById('header');
-                    const yOffset = header ? header.offsetHeight + 20 : 20;
-                    const y = target.getBoundingClientRect().top + window.pageYOffset - yOffset;
-                    
-                    window.scrollTo({
-                        top: y,
-                        behavior: 'smooth'
-                    });
-                }
+document.querySelectorAll('.nav a[href^="#"], .hero-cta a[href^="#"], .mobile-nav a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const target = document.querySelector(targetId);
+        
+        if (target) {
+            const header = document.getElementById('header');
+            const yOffset = header ? header.offsetHeight + 20 : 20;
+            const y = target.getBoundingClientRect().top + window.pageYOffset - yOffset;
+            
+            // Enhanced smooth scroll with better easing
+            window.scrollTo({
+                top: y,
+                behavior: 'smooth',
+                block: 'start'
             });
-        });
+        }
+    });
+});
         
         // --- 8. Active Navigation ---
         initActiveNavigation();
@@ -546,5 +577,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 250);
     });
 });
-
-
