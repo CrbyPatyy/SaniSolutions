@@ -80,7 +80,7 @@ export default async function handler(req, res) {
 
     const { data, error } = await resend.emails.send({
       from: 'Sani Solutions <onboarding@resend.dev>',
-      to: ['macepilapil74.mp@gmail.com'],
+      to: ['sanisolutions18@gmail.com'],
       reply_to: body.email,
       subject: `New Consultation from ${body.name}`,
       html: `
@@ -130,3 +130,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
+
